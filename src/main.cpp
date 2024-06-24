@@ -2,16 +2,25 @@
 #define LGFX_USE_V1
 #include "Arduino.h"
 #include "main.h"
-
 #include <LovyanGFX.hpp>
-
 #include <lvgl.h>
+#include "BLEDevice.h"
 
 #ifdef USE_UI
 #include "ui/ui.h"
 #endif
 
 #define buf_size 10
+
+BLEScan *pBLEScan;
+BLEClient *pClient;
+
+// Variables
+static BLEAddress *pServerAddress;
+// TPMS BLE SENSORS known addresses
+String knownAddresses[] = {"81:ea:ca:22:d5:e7", "82:ea:ca:33:02:d7"};
+String FrontAddress = "81:ea:ca:22:d5:e7";
+String BackAddress = "82:ea:ca:33:02:d7";
 
 class LGFX : public lgfx::LGFX_Device
 {
@@ -141,6 +150,20 @@ String getTimeString()
   return hours + ":" + minutes + ":" + seconds;
 }
 
+void updateFrontTyreValues(String battery, String pressure, String temperature)
+{
+  lv_label_set_text(ui_Front_Battery_Value, battery.c_str());
+  lv_label_set_text(ui_Front_Pressure_Value, pressure.c_str());
+  lv_label_set_text(ui_Front_Temperature_Value, temperature.c_str());
+}
+
+void updateBackTyreValues(String battery, String pressure, String temperature)
+{
+  lv_label_set_text(ui_Back_Battery_Value, battery.c_str());
+  lv_label_set_text(ui_Back_Pressure_Value, pressure.c_str());
+  lv_label_set_text(ui_Back_Temperature_Value, temperature.c_str());
+}
+
 void updateValues()
 {
   static unsigned long lastTime = 0;
@@ -149,16 +172,7 @@ void updateValues()
   if (currentTime - lastTime > 1000)
   {
     lastTime = currentTime;
-    // convert time to string in form of "HH:MM:SS"
-    // currentTime is in milliseconds
-
     lv_label_set_text(ui_Timer, getTimeString().c_str());
-    // lv_label_set_text(ui_Front_Battery_Value, "100%");
-    // lv_label_set_text(ui_Back_Battery_Value, "100%");
-    // lv_label_set_text(ui_Front_Pressure_Value, "1000");
-    // lv_label_set_text(ui_Back_Pressure_Value, "1000");
-    // lv_label_set_text(ui_Front_Temperature_Value, "100");
-    // lv_label_set_text(ui_Back_Temperature_Value, "100");
   }
 }
 
@@ -198,11 +212,124 @@ void my_touchpad_read_2(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
   }
 }
 
+/* BLE functions */
+static void notifyCallback(
+    BLERemoteCharacteristic *pBLERemoteCharacteristic,
+    uint8_t *pData,
+    size_t length,
+    bool isNotify)
+{
+  // Serial.print("Notify callback for characteristic ");
+  // Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
+  // Serial.print(" of data length ");
+  // Serial.println(length);
+}
+
+String retmanData(String txt, int shift)
+{
+  // Return only manufacturer data string
+  int start = txt.indexOf("data: ") + 6 + shift;
+  return txt.substring(start, start + (36 - shift));
+}
+
+byte retByte(String Data, int start)
+{
+  // Return a single byte from string
+  int sp = (start) * 2;
+  char *ptr;
+  return strtoul(Data.substring(sp, sp + 2).c_str(), &ptr, 16);
+}
+
+long returnData(String Data, int start)
+{
+  // Return a long value with little endian conversion
+  return retByte(Data, start) | retByte(Data, start + 1) << 8 | retByte(Data, start + 2) << 16 | retByte(Data, start + 3) << 24;
+}
+
+int returnBatt(String Data)
+{
+  // Return battery percentage
+  return retByte(Data, 16);
+}
+
+int returnAlarm(String Data)
+{
+  // Return battery percentage
+  return retByte(Data, 17);
+}
+class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
+{
+  void onResult(BLEAdvertisedDevice Device)
+  {
+    // Serial.print("BLE Advertised Device found: ");
+    // Serial.println(Device.toString().c_str());
+    pServerAddress = new BLEAddress(Device.getAddress());
+    bool known = false;
+    bool Master = false;
+    String ManufData = Device.toString().c_str();
+    for (int i = 0; i < (sizeof(knownAddresses) / sizeof(knownAddresses[0])); i++)
+    {
+      if (strcmp(pServerAddress->toString().c_str(), knownAddresses[i].c_str()) == 0)
+        known = true;
+    }
+    if (known)
+    {
+      String instring = retmanData(ManufData, 0);
+      // Serial.println(instring);
+      // Serial.print("Device found: ");
+      // Serial.println(Device.getRSSI());
+      // // Tire Temperature in C°
+      // Serial.print("Temperature: ");
+      // Serial.print(returnData(instring, 12) / 100.0);
+      // Serial.println("C°");
+      // // Tire pressure in Kpa
+      // Serial.print("Pressure:    ");
+      // Serial.print(returnData(instring, 8) / 1000.0);
+      // Serial.println("Kpa");
+      // // Tire pressure in Bar
+      // Serial.print("Pressure:    ");
+      // Serial.print(returnData(instring, 8) / 100000.0);
+      // Serial.println("bar");
+      // // Tire pressure in PSI
+      // Serial.print("Pressure:    ");
+      // Serial.print(returnData(instring, 8) / 6894.76);
+      // // Battery percentage
+      // Serial.print("Battery:     ");
+      // Serial.print(returnBatt(instring));
+      // Serial.println("%");
+      // if (returnAlarm(instring))
+      // {
+      //   Serial.println("ALARM!");
+      // }
+      // Serial.println("");
+
+      if (strcmp(pServerAddress->toString().c_str(), FrontAddress.c_str()) == 0)
+      {
+        updateFrontTyreValues(String(returnBatt(instring)), String(returnData(instring, 8) / 6894.76), String(returnData(instring, 12) / 100.0));
+      }
+      else if (strcmp(pServerAddress->toString().c_str(), BackAddress.c_str()) == 0)
+      {
+        updateBackTyreValues(String(returnBatt(instring)), String(returnData(instring, 8) / 6894.76), String(returnData(instring, 12) / 100.0));
+      }
+      Device.getScan()->stop();
+      delay(100);
+    }
+  }
+};
+
 void setup()
 {
   Serial.begin(115200); /* prepare for possible serial debug */
 
   Serial.println("Starting up device");
+
+  Serial.print("Init BLE. ");
+  BLEDevice::init("");
+  pClient = BLEDevice::createClient();
+  pBLEScan = BLEDevice::getScan();
+  pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
+  pBLEScan->setActiveScan(true);
+  Serial.println("Done");
 
   tft.init();
   tft.initDMA();
@@ -246,19 +373,15 @@ void setup()
   lv_obj_set_width(slider1, screenWidth - 60);
   lv_obj_align_to(slider1, label1, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 #endif
-
   tft.setBrightness(200);
-  updateValues();
 }
 
 void loop()
 {
 
   lv_timer_handler();
-  delay(5);
-
+  delay(1);
+  BLEScanResults scanResults = pBLEScan->start(5);
   Serial.println("Looping");
   updateValues();
-
-  delay(1000);
 }
