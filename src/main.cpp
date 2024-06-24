@@ -85,22 +85,21 @@ public:
       _panel_instance.setLight(&_light_instance); // Sets the backlight to the panel.
     }
 
-
-    {                           // タッチスクリーン制御の設定を行います。（必要なければ削除）
+    { // タッチスクリーン制御の設定を行います。（必要なければ削除）
       auto cfg = _touch_instance.config();
 
-      cfg.x_min = 0;           // タッチスクリーンから得られる最小のX値(生の値)
-      cfg.x_max = 240;         // タッチスクリーンから得られる最大のX値(生の値)
-      cfg.y_min = 0;           // タッチスクリーンから得られる最小のY値(生の値)
-      cfg.y_max = 240;         // タッチスクリーンから得られる最大のY値(生の値)
-      cfg.pin_int = TP_INT;        // INTが接続されているピン番号
+      cfg.x_min = 0;        // タッチスクリーンから得られる最小のX値(生の値)
+      cfg.x_max = 240;      // タッチスクリーンから得られる最大のX値(生の値)
+      cfg.y_min = 0;        // タッチスクリーンから得られる最小のY値(生の値)
+      cfg.y_max = 240;      // タッチスクリーンから得られる最大のY値(生の値)
+      cfg.pin_int = TP_INT; // INTが接続されているピン番号
       // cfg.pin_rst = TP_RST;
-      cfg.bus_shared = false;   // 画面と共通のバスを使用している場合 trueを設定
+      cfg.bus_shared = false;  // 画面と共通のバスを使用している場合 trueを設定
       cfg.offset_rotation = 0; // 表示とタッチの向きのが一致しない場合の調整 0~7の値で設定
       cfg.i2c_port = 0;        // 使用するI2Cを選択 (0 or 1)
       cfg.i2c_addr = 0x15;     // I2Cデバイスアドレス番号
-      cfg.pin_sda = I2C_SDA;        // SDAが接続されているピン番号
-      cfg.pin_scl = I2C_SCL;        // SCLが接続されているピン番号
+      cfg.pin_sda = I2C_SDA;   // SDAが接続されているピン番号
+      cfg.pin_scl = I2C_SCL;   // SCLが接続されているピン番号
       cfg.freq = 400000;       // I2Cクロックを設定
 
       _touch_instance.config(cfg);
@@ -108,7 +107,6 @@ public:
     }
 
     setPanel(&_panel_instance); // 使用するパネルをセットします。
-    
   }
 };
 
@@ -120,6 +118,28 @@ static const uint32_t screenHeight = HEIGHT;
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[2][screenWidth * buf_size];
 
+String getTimeString()
+{
+  unsigned long currentTime = millis();
+  String hours = String(currentTime / 3600000);
+  String minutes = String((currentTime / 60000) % 60);
+  String seconds = String((currentTime / 1000) % 60);
+
+  if (hours.length() == 1)
+  {
+    hours = "0" + hours;
+  }
+  if (minutes.length() == 1)
+  {
+    minutes = "0" + minutes;
+  }
+
+  if (seconds.length() == 1)
+  {
+    seconds = "0" + seconds;
+  }
+  return hours + ":" + minutes + ":" + seconds;
+}
 
 void updateValues()
 {
@@ -130,9 +150,10 @@ void updateValues()
   {
     lastTime = currentTime;
     // convert time to string in form of "HH:MM:SS"
-    String time = String(currentTime / 3600) + ":" + String((currentTime % 3600) / 60) + ":" + String(currentTime % 60);
-    lv_label_set_text(ui_Timer, time.c_str());
-    lv_label_set_text(ui_Front_Battery_Value, "10%");
+    // currentTime is in milliseconds
+
+    lv_label_set_text(ui_Timer, getTimeString().c_str());
+    // lv_label_set_text(ui_Front_Battery_Value, "100%");
     // lv_label_set_text(ui_Back_Battery_Value, "100%");
     // lv_label_set_text(ui_Front_Pressure_Value, "1000");
     // lv_label_set_text(ui_Back_Pressure_Value, "1000");
@@ -163,7 +184,6 @@ void my_touchpad_read_2(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
 
   touched = tft.getTouch(&touchX, &touchY);
 
-
   if (!touched)
   {
     data->state = LV_INDEV_STATE_REL;
@@ -184,12 +204,10 @@ void setup()
 
   Serial.println("Starting up device");
 
-
   tft.init();
   tft.initDMA();
   tft.startWrite();
   tft.fillScreen(TFT_BLACK);
-
 
   lv_init();
 
