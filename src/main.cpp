@@ -125,6 +125,26 @@ bool touched;
 uint8_t gesture;
 uint16_t touchX, touchY;
 
+void updateValues()
+{
+  static uint32_t lastTime = 0;
+  uint32_t currentTime = millis();
+
+  if (currentTime - lastTime > 1000)
+  {
+    lastTime = currentTime;
+    // convert time to string in form of "HH:MM:SS"
+    String time = String(currentTime / 3600) + ":" + String((currentTime % 3600) / 60) + ":" + String(currentTime % 60);
+    lv_label_set_text(ui_Timer, time.c_str());
+    // lv_label_set_text(ui_Front_Battery_Value, "100%");
+    // lv_label_set_text(ui_Back_Battery_Value, "100%");
+    // lv_label_set_text(ui_Front_Pressure_Value, "1000");
+    // lv_label_set_text(ui_Back_Pressure_Value, "1000");
+    // lv_label_set_text(ui_Front_Temperature_Value, "100");
+    // lv_label_set_text(ui_Back_Temperature_Value, "100");
+  }
+}
+
 /* Display flushing */
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
@@ -216,12 +236,13 @@ void setup()
 #endif
 
   tft.setBrightness(200);
+  updateValues();
 }
 
 void loop()
 {
+  Serial.println("Looping");
+  updateValues();
   lv_timer_handler();
   delay(5);
-
-
 }

@@ -1,6 +1,6 @@
 
 
-// #define USE_UI  // uncomment to use ui files exported on src/ui/ folder from squareline studio
+#define USE_UI  // uncomment to use ui files exported on src/ui/ folder from squareline studio
 
 // screen configs
 #define WIDTH 240
