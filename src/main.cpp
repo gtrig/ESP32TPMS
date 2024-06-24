@@ -150,18 +150,82 @@ String getTimeString()
   return hours + ":" + minutes + ":" + seconds;
 }
 
-void updateFrontTyreValues(String battery, String pressure, String temperature)
-{
-  lv_label_set_text(ui_Front_Battery_Value, battery.c_str());
-  lv_label_set_text(ui_Front_Pressure_Value, pressure.c_str());
-  lv_label_set_text(ui_Front_Temperature_Value, temperature.c_str());
+void updateFrontTyreValues(int battery, float pressure, float temperature)
+{ 
+  //battery value needs to have the % sign
+  lv_label_set_text(ui_Front_Battery_Value, String(String(battery) + "%").c_str());
+  lv_label_set_text(ui_Front_Pressure_Value, String(pressure).c_str());
+  lv_label_set_text(ui_Front_Temperature_Value, String(temperature).c_str());
+  // set color of the pressure value
+  // if pressure is above 40 psi, set the color to red
+  if (pressure > 40)
+  {
+    lv_obj_set_style_bg_color(ui_Front_Pressure, lv_color_hex(0xBB2828), LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+  // if pressure is below 34 psi, set the color to blue
+  else if (pressure < 34)
+  {
+    lv_obj_set_style_bg_color(ui_Front_Pressure, lv_color_hex(0x2828BB) , LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+  // if pressure is between 34 and 40 psi, set the color to green
+  else {
+    lv_obj_set_style_bg_color(ui_Front_Pressure, lv_color_hex(0x28BB28) , LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+
+  // set color of the temperature value
+  // if temperature is above 40 degrees, set the color to red
+  if (temperature > 50)
+  {
+    lv_obj_set_style_bg_color(ui_Front_Temperature, lv_color_hex(0xBB2828), LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+  // if temperature is below 34 degrees, set the color to blue
+  else if (temperature < 40)
+  {
+    lv_obj_set_style_bg_color(ui_Front_Temperature, lv_color_hex(0x2828BB) , LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+  // if temperature is between 34 and 40 degrees, set the color to green
+  else {
+    lv_obj_set_style_bg_color(ui_Front_Temperature, lv_color_hex(0x28BB28) , LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
 }
 
-void updateBackTyreValues(String battery, String pressure, String temperature)
+void updateBackTyreValues(int battery, float pressure, float temperature)
 {
-  lv_label_set_text(ui_Back_Battery_Value, battery.c_str());
-  lv_label_set_text(ui_Back_Pressure_Value, pressure.c_str());
-  lv_label_set_text(ui_Back_Temperature_Value, temperature.c_str());
+  lv_label_set_text(ui_Back_Battery_Value, String(String(battery) + "%").c_str());
+  lv_label_set_text(ui_Back_Pressure_Value, String(pressure).c_str());
+  lv_label_set_text(ui_Back_Temperature_Value, String(temperature).c_str());
+
+  // set color of the pressure value
+  // if pressure is above 46 psi, set the color to red
+  if (pressure > 46)
+  {
+    lv_obj_set_style_bg_color(ui_Back_Pressure, lv_color_hex(0xBB2828), LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+  // if pressure is below 40 psi, set the color to blue
+  else if (pressure < 40)
+  {
+    lv_obj_set_style_bg_color(ui_Back_Pressure, lv_color_hex(0x2828BB) , LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+  // if pressure is between 34 and 40 psi, set the color to green
+  else {
+    lv_obj_set_style_bg_color(ui_Back_Pressure, lv_color_hex(0x28BB28) , LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+
+  // set color of the temperature value
+  // if temperature is above 50 degrees, set the color to red
+  if (temperature > 50)
+  {
+    lv_obj_set_style_bg_color(ui_Back_Temperature, lv_color_hex(0xBB2828), LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+  // if temperature is below 40 degrees, set the color to blue
+  else if (temperature < 40)
+  {
+    lv_obj_set_style_bg_color(ui_Back_Temperature, lv_color_hex(0x2828BB) , LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+  // if temperature is between 34 and 40 degrees, set the color to green
+  else {
+    lv_obj_set_style_bg_color(ui_Back_Temperature, lv_color_hex(0x28BB28) , LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
 }
 
 void updateValues()
@@ -275,42 +339,21 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
     if (known)
     {
       String instring = retmanData(ManufData, 0);
-      // Serial.println(instring);
-      // Serial.print("Device found: ");
-      // Serial.println(Device.getRSSI());
-      // // Tire Temperature in C°
-      // Serial.print("Temperature: ");
-      // Serial.print(returnData(instring, 12) / 100.0);
-      // Serial.println("C°");
-      // // Tire pressure in Kpa
-      // Serial.print("Pressure:    ");
-      // Serial.print(returnData(instring, 8) / 1000.0);
-      // Serial.println("Kpa");
-      // // Tire pressure in Bar
-      // Serial.print("Pressure:    ");
-      // Serial.print(returnData(instring, 8) / 100000.0);
-      // Serial.println("bar");
-      // // Tire pressure in PSI
-      // Serial.print("Pressure:    ");
-      // Serial.print(returnData(instring, 8) / 6894.76);
-      // // Battery percentage
-      // Serial.print("Battery:     ");
-      // Serial.print(returnBatt(instring));
-      // Serial.println("%");
-      // if (returnAlarm(instring))
-      // {
-      //   Serial.println("ALARM!");
-      // }
-      // Serial.println("");
+      int Alarm = returnAlarm(instring);
+      int Battery = returnBatt(instring);
+      // pressure and temperature need to have only 1 decimal
+      float Pressure = ((float)returnData(instring, 8) / 6894.76, 1);
+      float Temperature = ((float)returnData(instring, 12) / 100.0, 1);
 
       if (strcmp(pServerAddress->toString().c_str(), FrontAddress.c_str()) == 0)
       {
-        updateFrontTyreValues(String(returnBatt(instring)), String(returnData(instring, 8) / 6894.76), String(returnData(instring, 12) / 100.0));
+        updateFrontTyreValues(Battery, Pressure, Temperature);
       }
       else if (strcmp(pServerAddress->toString().c_str(), BackAddress.c_str()) == 0)
       {
-        updateBackTyreValues(String(returnBatt(instring)), String(returnData(instring, 8) / 6894.76), String(returnData(instring, 12) / 100.0));
+        updateBackTyreValues(Battery, Pressure, Temperature);
       }
+      
       Device.getScan()->stop();
       delay(100);
     }
