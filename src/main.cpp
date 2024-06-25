@@ -4,7 +4,8 @@
 #include "main.h"
 #include <LovyanGFX.hpp>
 #include <lvgl.h>
-#include "BLEDevice.h"
+#include "functions/tpms.h"
+#include "functions/ble.h"
 
 #ifdef USE_UI
 #include "ui/ui.h"
@@ -12,30 +13,12 @@
 
 #define buf_size 10
 
-BLEScan *pBLEScan;
-BLEClient *pClient;
 
-#define FRONT_PRESSURE_LOW 34
-#define FRONT_PRESSURE_HIGH 40
-#define FRONT_TEMPERATURE_LOW 40
-#define FRONT_TEMPERATURE_HIGH 50
 
-#define BACK_PRESSURE_LOW 40
-#define BACK_PRESSURE_HIGH 46
-#define BACK_TEMPERATURE_LOW 40
-#define BACK_TEMPERATURE_HIGH 50
-
-// Variables
-static BLEAddress *pServerAddress;
-// TPMS BLE SENSORS known addresses
-String knownAddresses[] = {"81:ea:ca:22:d5:e7", "82:ea:ca:33:02:d7"};
-String FrontAddress = "81:ea:ca:22:d5:e7";
-String BackAddress = "82:ea:ca:33:02:d7";
-
-float FrontPressure = 5;
-float FrontTemperature = 10;
-float BackPressure = 15;
-float BackTemperature = 20;
+float FrontPressure = 35.123;
+float FrontTemperature = 30.234;
+float BackPressure = 42.123;
+float BackTemperature = 30.234;
 
 class LGFX : public lgfx::LGFX_Device
 {
@@ -165,132 +148,6 @@ String getTimeString()
   return hours + ":" + minutes + ":" + seconds;
 }
 
-void setColor(String color, String position)
-{
-  lv_obj_t *position_element;
-  
-  if (position == "Front_Pressure")
-  {
-    position_element = ui_Front_Pressure;
-  }
-  else if (position == "Front_Temperature")
-  {
-    position_element = ui_Front_Temperature;
-  }
-  else if (position == "Back_Pressure")
-  {
-    position_element = ui_Back_Pressure;
-  }
-  else
-  {
-    position_element = ui_Back_Temperature;
-  }
-  
-  if (color == "red")
-  {
-    ui_object_set_themeable_style_property(position_element, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_Red);
-    ui_object_set_themeable_style_property(position_element, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_Red);
-  }
-  else if (color == "blue")
-  {
-    ui_object_set_themeable_style_property(position_element, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_Blue);
-    ui_object_set_themeable_style_property(position_element, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_Blue);
-  }
-  else
-  {
-    ui_object_set_themeable_style_property(position_element, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_Green);
-    ui_object_set_themeable_style_property(position_element, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_Green);
-  }
-}
-
-void updateFrontTyreValues(int battery, float pressure, float temperature)
-{
-  // battery value needs to have the % sign
-  lv_label_set_text(ui_Front_Battery_Value, String(String(battery) + "%").c_str());
-  lv_label_set_text(ui_Front_Pressure_Value, String(pressure).substring(0,4).c_str());
-  lv_label_set_text(ui_Front_Temperature_Value, String(temperature).substring(0,4).c_str());
-  // set color of the pressure value
-  // if pressure is above 40 psi, set the color to red
-  if (pressure > FRONT_PRESSURE_HIGH)
-  {
-    setColor("red", "Front_Pressure");
-  }
-  // if pressure is below 34 psi, set the color to blue
-  else if (pressure < FRONT_PRESSURE_LOW)
-  {
-    setColor("blue", "Front_Pressure");
-  }
-  // if pressure is between 34 and 40 psi, set the color to green
-  else
-  {
-    setColor("green", "Front_Pressure");
-  }
-
-  // set color of the temperature value
-  // if temperature is above 40 degrees, set the color to red
-  if (temperature > FRONT_TEMPERATURE_HIGH)
-  {
-    setColor("red", "Front_Temperature");
-  }
-  // if temperature is below 34 degrees, set the color to blue
-  else if (temperature < FRONT_TEMPERATURE_LOW)
-  {
-    setColor("blue", "Front_Temperature");
-  }
-  // if temperature is between 34 and 40 degrees, set the color to green
-  else
-  {
-    setColor("green", "Front_Temperature");
-  }
-}
-
-void updateBackTyreValues(int battery, float pressure, float temperature)
-{
-  lv_label_set_text(ui_Back_Battery_Value, String(String(battery) + "%").c_str());
-  lv_label_set_text(ui_Back_Pressure_Value, String(pressure).substring(0,4).c_str());
-  lv_label_set_text(ui_Back_Temperature_Value, String(temperature).substring(0,4).c_str());
-
-  // set color of the pressure value
-  // if pressure is above 46 psi, set the color to red
-  if (pressure > BACK_PRESSURE_HIGH)
-  {
-    setColor("red", "Back_Pressure");
-  }
-  // if pressure is below 40 psi, set the color to blue
-  else if (pressure < BACK_PRESSURE_LOW)
-  {
-    setColor("blue", "Back_Pressure");
-  }
-  // if pressure is between 34 and 40 psi, set the color to green
-  else
-  {
-    setColor("green", "Back_Pressure");
-  }
-
-  // set color of the temperature value
-  // if temperature is above 50 degrees, set the color to red
-  if (temperature > BACK_TEMPERATURE_HIGH)
-  {
-    setColor("red", "Back_Temperature");
-  }
-  // if temperature is below 40 degrees, set the color to blue
-  else if (temperature < BACK_TEMPERATURE_LOW)
-  {
-    setColor("blue", "Back_Temperature");
-  }
-  // if temperature is between 34 and 40 degrees, set the color to green
-  else
-  {
-    setColor("green", "Back_Temperature");
-  }
-}
-
 void updateValues()
 {
   static unsigned long lastTime = 0;
@@ -318,7 +175,6 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
 /*Read the touchpad*/
 void my_touchpad_read_2(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
 {
-
   bool touched;
   uint8_t gesture;
   uint16_t touchX, touchY;
@@ -339,104 +195,11 @@ void my_touchpad_read_2(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
   }
 }
 
-/* BLE functions */
-static void notifyCallback(
-    BLERemoteCharacteristic *pBLERemoteCharacteristic,
-    uint8_t *pData,
-    size_t length,
-    bool isNotify)
-{
-  // Serial.print("Notify callback for characteristic ");
-  // Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
-  // Serial.print(" of data length ");
-  // Serial.println(length);
-}
-
-String retmanData(String txt, int shift)
-{
-  // Return only manufacturer data string
-  int start = txt.indexOf("data: ") + 6 + shift;
-  return txt.substring(start, start + (36 - shift));
-}
-
-byte retByte(String Data, int start)
-{
-  // Return a single byte from string
-  int sp = (start) * 2;
-  char *ptr;
-  return strtoul(Data.substring(sp, sp + 2).c_str(), &ptr, 16);
-}
-
-long returnData(String Data, int start)
-{
-  // Return a long value with little endian conversion
-  return retByte(Data, start) | retByte(Data, start + 1) << 8 | retByte(Data, start + 2) << 16 | retByte(Data, start + 3) << 24;
-}
-
-int returnBatt(String Data)
-{
-  // Return battery percentage
-  return retByte(Data, 16);
-}
-
-int returnAlarm(String Data)
-{
-  // Return battery percentage
-  return retByte(Data, 17);
-}
-class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
-{
-  void onResult(BLEAdvertisedDevice Device)
-  {
-    // Serial.print("BLE Advertised Device found: ");
-    // Serial.println(Device.toString().c_str());
-    pServerAddress = new BLEAddress(Device.getAddress());
-    bool known = false;
-    bool Master = false;
-    String ManufData = Device.toString().c_str();
-    for (int i = 0; i < (sizeof(knownAddresses) / sizeof(knownAddresses[0])); i++)
-    {
-      if (strcmp(pServerAddress->toString().c_str(), knownAddresses[i].c_str()) == 0)
-        known = true;
-    }
-    if (known)
-    {
-      String instring = retmanData(ManufData, 0);
-      int Alarm = returnAlarm(instring);
-      int Battery = returnBatt(instring);
-      // pressure and temperature need to have only 1 decimal
-      float Pressure = (float)returnData(instring, 8) / 6894.76;
-      float Temperature = (float)returnData(instring, 12) / 100.0;
-
-      if (strcmp(pServerAddress->toString().c_str(), FrontAddress.c_str()) == 0)
-      {
-        updateFrontTyreValues(Battery, Pressure, Temperature);
-      }
-      else if (strcmp(pServerAddress->toString().c_str(), BackAddress.c_str()) == 0)
-      {
-        updateBackTyreValues(Battery, Pressure, Temperature);
-      }
-
-      Device.getScan()->stop();
-      delay(100);
-    }
-  }
-};
-
 void setup()
 {
   Serial.begin(115200); /* prepare for possible serial debug */
-
   Serial.println("Starting up device");
-
-  Serial.print("Init BLE. ");
-  BLEDevice::init("");
-  pClient = BLEDevice::createClient();
-  pBLEScan = BLEDevice::getScan();
-  pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
-  pBLEScan->setActiveScan(true);
-  Serial.println("Done");
-
+  bleInit();
   tft.init();
   tft.initDMA();
   tft.startWrite();
@@ -486,7 +249,7 @@ void loop()
 {
 
   lv_timer_handler();
-  BLEScanResults scanResults = pBLEScan->start(5);
+  bleScan();
   Serial.println("Looping");
   updateValues();
 
