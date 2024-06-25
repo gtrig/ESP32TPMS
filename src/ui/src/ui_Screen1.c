@@ -56,7 +56,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_x(ui_Front_Battery_Value, -26);
     lv_obj_set_y(ui_Front_Battery_Value, -1);
     lv_obj_set_align(ui_Front_Battery_Value, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Front_Battery_Value, "100%");
+    lv_label_set_text(ui_Front_Battery_Value, "---%");
     lv_obj_set_style_text_font(ui_Front_Battery_Value, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_left(ui_Front_Battery_Value, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_right(ui_Front_Battery_Value, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -80,7 +80,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_x(ui_Back_Battery_Value, 27);
     lv_obj_set_y(ui_Back_Battery_Value, -158);
     lv_obj_set_align(ui_Back_Battery_Value, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Back_Battery_Value, "100%");
+    lv_label_set_text(ui_Back_Battery_Value, "---%");
     lv_obj_set_style_text_font(ui_Back_Battery_Value, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Pressure_Data_Row = lv_obj_create(ui_Top_Container);
@@ -116,7 +116,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_x(ui_Front_Pressure_Value, -4);
     lv_obj_set_y(ui_Front_Pressure_Value, -4);
     lv_obj_set_align(ui_Front_Pressure_Value, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Front_Pressure_Value, "36.2");
+    lv_label_set_text(ui_Front_Pressure_Value, "--.-");
     lv_obj_set_style_text_font(ui_Front_Pressure_Value, &lv_font_montserrat_38, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label2 = lv_label_create(ui_Front_Pressure);
@@ -135,39 +135,39 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_align(ui_Front_Data_Spacer, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_Front_Data_Spacer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Back_Pressure = lv_obj_create(ui_Pressure_Data_Row);
-    lv_obj_remove_style_all(ui_Back_Pressure);
-    lv_obj_set_width(ui_Back_Pressure, 100);
-    lv_obj_set_height(ui_Back_Pressure, 50);
-    lv_obj_set_x(ui_Back_Pressure, -57);
-    lv_obj_set_y(ui_Back_Pressure, -37);
-    lv_obj_set_align(ui_Back_Pressure, LV_ALIGN_CENTER);
-    lv_obj_set_flex_flow(ui_Back_Pressure, LV_FLEX_FLOW_ROW);
-    lv_obj_set_flex_align(ui_Back_Pressure, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_Back_Pressure, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_Back_Pressure, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_object_set_themeable_style_property(ui_Back_Pressure, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_Green);
-    ui_object_set_themeable_style_property(ui_Back_Pressure, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_Green);
+    ui_Front_Temperature = lv_obj_create(ui_Pressure_Data_Row);
+    lv_obj_remove_style_all(ui_Front_Temperature);
+    lv_obj_set_width(ui_Front_Temperature, 100);
+    lv_obj_set_height(ui_Front_Temperature, 50);
+    lv_obj_set_x(ui_Front_Temperature, -57);
+    lv_obj_set_y(ui_Front_Temperature, -37);
+    lv_obj_set_align(ui_Front_Temperature, LV_ALIGN_CENTER);
+    lv_obj_set_flex_flow(ui_Front_Temperature, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(ui_Front_Temperature, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_Front_Temperature, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Front_Temperature, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_object_set_themeable_style_property(ui_Front_Temperature, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
+                                           _ui_theme_color_Blue);
+    ui_object_set_themeable_style_property(ui_Front_Temperature, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
+                                           _ui_theme_alpha_Blue);
 
-    ui_Back_Pressure_Value = lv_label_create(ui_Back_Pressure);
-    lv_obj_set_width(ui_Back_Pressure_Value, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Back_Pressure_Value, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Back_Pressure_Value, -4);
-    lv_obj_set_y(ui_Back_Pressure_Value, -4);
-    lv_obj_set_align(ui_Back_Pressure_Value, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Back_Pressure_Value, "36.2");
-    lv_obj_set_style_text_font(ui_Back_Pressure_Value, &lv_font_montserrat_38, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_Front_Temperature_Value = lv_label_create(ui_Front_Temperature);
+    lv_obj_set_width(ui_Front_Temperature_Value, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Front_Temperature_Value, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Front_Temperature_Value, -4);
+    lv_obj_set_y(ui_Front_Temperature_Value, -4);
+    lv_obj_set_align(ui_Front_Temperature_Value, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Front_Temperature_Value, "--.-");
+    lv_obj_set_style_text_font(ui_Front_Temperature_Value, &lv_font_montserrat_38, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Label1 = lv_label_create(ui_Back_Pressure);
-    lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label1, 26);
-    lv_obj_set_y(ui_Label1, 18);
-    lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label1, "psi");
-    lv_obj_set_style_text_font(ui_Label1, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_Label4 = lv_label_create(ui_Front_Temperature);
+    lv_obj_set_width(ui_Label4, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label4, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label4, 26);
+    lv_obj_set_y(ui_Label4, 18);
+    lv_obj_set_align(ui_Label4, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label4, "°C");
+    lv_obj_set_style_text_font(ui_Label4, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Bottom = lv_obj_create(ui_Screen1);
     lv_obj_remove_style_all(ui_Bottom);
@@ -200,39 +200,39 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_flex_align(ui_Temperature_Data_Row, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER);
     lv_obj_clear_flag(ui_Temperature_Data_Row, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Front_Temperature = lv_obj_create(ui_Temperature_Data_Row);
-    lv_obj_remove_style_all(ui_Front_Temperature);
-    lv_obj_set_width(ui_Front_Temperature, 100);
-    lv_obj_set_height(ui_Front_Temperature, 50);
-    lv_obj_set_x(ui_Front_Temperature, -57);
-    lv_obj_set_y(ui_Front_Temperature, -37);
-    lv_obj_set_align(ui_Front_Temperature, LV_ALIGN_CENTER);
-    lv_obj_set_flex_flow(ui_Front_Temperature, LV_FLEX_FLOW_ROW);
-    lv_obj_set_flex_align(ui_Front_Temperature, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_Front_Temperature, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_Front_Temperature, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_object_set_themeable_style_property(ui_Front_Temperature, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_Blue);
-    ui_object_set_themeable_style_property(ui_Front_Temperature, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_Blue);
+    ui_Back_Pressure = lv_obj_create(ui_Temperature_Data_Row);
+    lv_obj_remove_style_all(ui_Back_Pressure);
+    lv_obj_set_width(ui_Back_Pressure, 100);
+    lv_obj_set_height(ui_Back_Pressure, 50);
+    lv_obj_set_x(ui_Back_Pressure, -57);
+    lv_obj_set_y(ui_Back_Pressure, -37);
+    lv_obj_set_align(ui_Back_Pressure, LV_ALIGN_CENTER);
+    lv_obj_set_flex_flow(ui_Back_Pressure, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(ui_Back_Pressure, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_Back_Pressure, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Back_Pressure, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_object_set_themeable_style_property(ui_Back_Pressure, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
+                                           _ui_theme_color_Green);
+    ui_object_set_themeable_style_property(ui_Back_Pressure, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
+                                           _ui_theme_alpha_Green);
 
-    ui_Front_Temperature_Value = lv_label_create(ui_Front_Temperature);
-    lv_obj_set_width(ui_Front_Temperature_Value, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Front_Temperature_Value, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Front_Temperature_Value, -4);
-    lv_obj_set_y(ui_Front_Temperature_Value, -4);
-    lv_obj_set_align(ui_Front_Temperature_Value, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Front_Temperature_Value, "42");
-    lv_obj_set_style_text_font(ui_Front_Temperature_Value, &lv_font_montserrat_38, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_Back_Pressure_Value = lv_label_create(ui_Back_Pressure);
+    lv_obj_set_width(ui_Back_Pressure_Value, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Back_Pressure_Value, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Back_Pressure_Value, -4);
+    lv_obj_set_y(ui_Back_Pressure_Value, -4);
+    lv_obj_set_align(ui_Back_Pressure_Value, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Back_Pressure_Value, "--.-");
+    lv_obj_set_style_text_font(ui_Back_Pressure_Value, &lv_font_montserrat_38, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Label4 = lv_label_create(ui_Front_Temperature);
-    lv_obj_set_width(ui_Label4, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label4, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label4, 26);
-    lv_obj_set_y(ui_Label4, 18);
-    lv_obj_set_align(ui_Label4, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label4, "°C");
-    lv_obj_set_style_text_font(ui_Label4, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_Label1 = lv_label_create(ui_Back_Pressure);
+    lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label1, 26);
+    lv_obj_set_y(ui_Label1, 18);
+    lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label1, "psi");
+    lv_obj_set_style_text_font(ui_Label1, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Back_Data_Spacer = lv_obj_create(ui_Temperature_Data_Row);
     lv_obj_remove_style_all(ui_Back_Data_Spacer);
@@ -261,7 +261,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_x(ui_Back_Temperature_Value, -4);
     lv_obj_set_y(ui_Back_Temperature_Value, -4);
     lv_obj_set_align(ui_Back_Temperature_Value, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Back_Temperature_Value, "42");
+    lv_label_set_text(ui_Back_Temperature_Value, "--.-");
     lv_obj_set_style_text_font(ui_Back_Temperature_Value, &lv_font_montserrat_38, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label3 = lv_label_create(ui_Back_Temperature);
@@ -295,7 +295,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_width(ui_Timer, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Timer, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Timer, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Timer, "01:02:03");
+    lv_label_set_text(ui_Timer, "00:00:00");
     lv_obj_set_style_text_font(ui_Timer, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 }
