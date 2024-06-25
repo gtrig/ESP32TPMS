@@ -213,8 +213,8 @@ void updateFrontTyreValues(int battery, float pressure, float temperature)
 {
   // battery value needs to have the % sign
   lv_label_set_text(ui_Front_Battery_Value, String(String(battery) + "%").c_str());
-  lv_label_set_text(ui_Front_Pressure_Value, String(pressure,1).c_str());
-  lv_label_set_text(ui_Front_Temperature_Value, String(temperature,1).c_str());
+  lv_label_set_text(ui_Front_Pressure_Value, String(pressure).substring(0,4).c_str());
+  lv_label_set_text(ui_Front_Temperature_Value, String(temperature).substring(0,4).c_str());
   // set color of the pressure value
   // if pressure is above 40 psi, set the color to red
   if (pressure > FRONT_PRESSURE_HIGH)
@@ -253,8 +253,8 @@ void updateFrontTyreValues(int battery, float pressure, float temperature)
 void updateBackTyreValues(int battery, float pressure, float temperature)
 {
   lv_label_set_text(ui_Back_Battery_Value, String(String(battery) + "%").c_str());
-  lv_label_set_text(ui_Back_Pressure_Value, String(pressure,1).c_str());
-  lv_label_set_text(ui_Back_Temperature_Value, String(temperature,1).c_str());
+  lv_label_set_text(ui_Back_Pressure_Value, String(pressure).substring(0,4).c_str());
+  lv_label_set_text(ui_Back_Temperature_Value, String(temperature).substring(0,4).c_str());
 
   // set color of the pressure value
   // if pressure is above 46 psi, set the color to red
@@ -405,8 +405,8 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
       int Alarm = returnAlarm(instring);
       int Battery = returnBatt(instring);
       // pressure and temperature need to have only 1 decimal
-      float Pressure = ((float)returnData(instring, 8) / 6894.76, 1);
-      float Temperature = ((float)returnData(instring, 12) / 100.0, 1);
+      float Pressure = (float)returnData(instring, 8) / 6894.76;
+      float Temperature = (float)returnData(instring, 12) / 100.0;
 
       if (strcmp(pServerAddress->toString().c_str(), FrontAddress.c_str()) == 0)
       {
@@ -486,7 +486,7 @@ void loop()
 {
 
   lv_timer_handler();
-  BLEScanResults scanResults = pBLEScan->start(1);
+  BLEScanResults scanResults = pBLEScan->start(5);
   Serial.println("Looping");
   updateValues();
 
