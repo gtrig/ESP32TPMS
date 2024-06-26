@@ -240,6 +240,7 @@ void setup()
   lv_obj_align_to(slider1, label1, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 #endif
   tft.setBrightness(200);
+  tft.setRotation(3);
 }
 
 void loop()
